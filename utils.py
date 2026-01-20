@@ -26,6 +26,7 @@ class MetaExtractor:
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
         self.extension = self.path.suffix.lower()
+        self.default_date = datetime.strptime("1000:01:01 00:00:00", "%Y:%m:%d %H:%M:%S")
         # print(self.extension)
         self.file_name = self.path.name
         self.creation_date = self._get_creation_date()
@@ -40,11 +41,21 @@ class MetaExtractor:
         return seasons.get_season(now=self.creation_date)
 
     def _img_extract_via_pil(self):
+        print('Attempting to extract metadata using PIL...')
         if exif := Image.open(self.path)._getexif():
-            return datetime.strptime(exif[36867], '%Y:%m:%d %H:%M:%S')
+            print('Looking for date in EXIF...')
+            if 36867 in exif.keys():
+                print('...found!')
+                return datetime.strptime(exif[36867], '%Y:%m:%d %H:%M:%S')
+            else:
+                print('...failed. Defaulting to default date.')
+                return self.default_date
+            # return self.default_date
             # return exif[36867]
         else:
             Exception('Method pil: Image {0} does not have EXIF data.'.format(self.path))
+            print('...failed. Defaulting to default date.')
+            return self.default_date
     
     def _img_extract_via_exifread(self):
         with open(self.path, "rb") as file_handle:
@@ -92,6 +103,7 @@ class MetaExtractor:
         return min(dates)
 
     def _get_creation_date(self):
+        print(f"Pulling for extension {self.extension}")
         if self.extension in ['.mp4']:
             return self._vid_extract_via_exifread()
         elif self.extension in ['.jpg', '.png']:
