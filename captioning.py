@@ -51,9 +51,16 @@ class Captionator:
     
     def initialize(self):
         if Path("./hugging_face/processors/blip").is_dir():
+            print("Model weights previously initialized. Okay to run offline.")
             self.load_local_model_weights()
         else:
+            print("Model weights not found. Downloading weights...")
             self.download_model_weights()
+        print("...success!")
+        if torch.cuda.is_available():
+            print("Using graphics card.")
+        else:
+            print("Using CPU.")
         self.model.to("cuda" if torch.cuda.is_available() else "cpu")
 
     
