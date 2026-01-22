@@ -33,7 +33,7 @@ class Captionator:
     def get_caption(self, image: Image):
         inputs = self.processor(images=image, return_tensors="pt").to(self.model.device)
         generated_ids = self.model.generate(**inputs)
-        return self.processor.decode(generated_ids[0], skip_special_tokens=True)
+        return str(self.processor.decode(generated_ids[0], skip_special_tokens=True)).rstrip()
 
     def query(self, image: Image, query: str) -> str:
         # prompt = "Question: What is a dinosaur holding? Answer:"
