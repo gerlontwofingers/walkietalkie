@@ -30,14 +30,24 @@ class ImageDescriber:
         )
 
     def make_journal_entry(self, path: str | Path, min_conf: float = 0.55) -> str:
+        print(f"\n>>>> Image analysis for {path}: \n")
         description = self.get_descriptions(
             path=path,
             min_conf=min_conf
         )
+        if description.meta.creation_date == description.meta.default_date:
+            img_date_statement = (
+                f"Creation date did not exist in EXIF. No date available, "
+                f"so dates set to default {description.meta.default_date}."
+            )
+        else:
+            img_date_statement = (
+                "This image was taken "
+                rf"{description.meta.creation_date.strftime("%b %d, %Y")}, "
+                rf"in the {description.meta.creation_season}."
+            )
         return (
-            "This image was taken "
-            rf"{description.meta.creation_date.strftime("%b %d, %Y")}, "
-            rf"in the {description.meta.creation_season}.\n\n"
-            f"In this image of {description.caption} "
+            f"{img_date_statement}\n"
+            f"In this image, we can see {description.caption}.\n"
             f"{description.detected}"
         )
