@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from captioning import Captionator, GetImage
-from yolo_detector import YOLOConfidenceDetector
-from utils import MetaExtractor
+from IPython.display import display
+
+from utils.captioning import Captionator, GetImage
+from utils.yolo_detector import YOLOConfidenceDetector
+from utils.utils import MetaExtractor
 
 @dataclass(frozen=True)
 class ImageDescription:
@@ -29,25 +31,30 @@ class ImageDescriber:
             meta=MetaExtractor(path=path)
         )
 
-    def make_journal_entry(self, path: str | Path, min_conf: float = 0.55) -> str:
+    def make_journal_entry(self, path: str | Path, min_conf: float = 0.55, show_image: bool = False) -> str:
         print(f"\n>>>> Image analysis for {path}: \n")
         description = self.get_descriptions(
             path=path,
             min_conf=min_conf
         )
+        if show_image:
+            dims0 = self.last_image.image.size
+            scalar = 200/dims0[0]
+            dims1 = tuple(int(scalar * f) for f in dims0)
+            display(self.last_image.image.resize(dims1))
         if description.meta.creation_date == description.meta.default_date:
             img_date_statement = (
-                f"Creation date did not exist in EXIF. No date available, "
+                f"⛔️Creation date did not exist in EXIF. No date available, "
                 f"so dates set to default {description.meta.default_date}."
             )
         else:
             img_date_statement = (
-                "This image was taken "
+                "☝️This image was taken "
                 rf"{description.meta.creation_date.strftime("%b %d, %Y")}, "
                 rf"in the {description.meta.creation_season}."
             )
-        return (
+        print(
             f"{img_date_statement}\n"
-            f"In this image, we can see {description.caption}.\n"
+            f"👀In this image, we can see {description.caption}.\n"
             f"{description.detected}"
         )

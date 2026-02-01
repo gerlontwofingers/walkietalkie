@@ -5,7 +5,7 @@ from typing import Dict, List #, Union
 # import numpy as np
 
 class YOLOConfidenceDetector:
-    def __init__(self, model_path: str = "yolo11s.pt"):
+    def __init__(self, model_path: str = "./utils/yolo11s.pt"):
         """
         Initialize YOLO model for object detection with confidence scores.
         
@@ -74,7 +74,8 @@ class YOLOConfidenceDetector:
         """
         confidence_dict = self.detect_confidence_dict(image=image, confidence_threshold=confidence_threshold, verbose=verbose)
         if not confidence_dict:
-            return "I don't see any objects in this image."
+            return
+            # return "I don't see any objects in this image."
         
         # Filter by confidence and count objects
         class_counts = {}
@@ -140,7 +141,7 @@ class YOLOConfidenceDetector:
 
 
 # # Initialize detector
-# detector = YOLOConfidenceDetector("yolo11s.pt")
+# detector = YOLOConfidenceDetector("./utils/yolo11s.pt")
 
 # # Example with an image path
 # image_path = image.image
